@@ -1,6 +1,9 @@
 const express = require("express");
-
 const router = express.Router();
+const auth = require('../middleware/auth.js');
+const app = express();
+const { validationResult } = require('express-validator');
+const validateParticipant = require('../middleware/validateParticipant.js');
 
 app.post("/participants/add", auth, validateParticipant, async (req, res) => {
   const errors = validationResult(req);

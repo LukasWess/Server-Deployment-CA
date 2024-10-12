@@ -5,13 +5,13 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const mysql = require('mysql2/promise');
 const bcrypt = require('bcrypt');
-const basicAuth = require('express-basic-auth');
-const { body, validationResult } = require('express-validator');
+const { body } = require('express-validator');
 require('dotenv').config();
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var participantsRouter = require('./routes/participants');
+
 
 var app = express();
 
@@ -40,31 +40,6 @@ const pool = mysql.createPool({
   }
 });
 
-// Authentication middleware
-const auth = basicAuth({
-  authorizer: async (username, password) => {
-    const [rows] = await pool.query('SELECT * FROM admin_users WHERE username = ?', [username]);
-    if (rows.length > 0) {
-      const user = rows[0];
-      return await bcrypt.compare(password, user.password);
-    }
-    return false;
-  },
-  authorizeAsync: true,
-});
-
-// Validation middleware
-const validateParticipant = [
-  body('email').isEmail(),
-  body('firstname').notEmpty(),
-  body('lastname').notEmpty(),
-  body('dob').isDate({ format: 'YYYY-MM-DD' }),
-  body('work.companyname').notEmpty(),
-  body('work.salary').isNumeric(),
-  body('work.currency').notEmpty(),
-  body('home.country').notEmpty(),
-  body('home.city').notEmpty(),
-];
 
 // Error handling middleware
 app.use((err, req, res, next) => {
