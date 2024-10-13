@@ -7,6 +7,7 @@ const mysql = require("mysql2/promise");
 const bcrypt = require("bcrypt");
 const { body } = require("express-validator");
 require("dotenv").config();
+const pool = require("./db");
 
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
@@ -24,22 +25,32 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/", indexRouter);
-app.use("/users", usersRouter);
-app.use("/participants", participantsRouter);
-
-// Database connection
-const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  port: process.env.DB_PORT,
-  database: process.env.DB_NAME,
-  ssl: {
-    rejectUnauthorized: false
+app.use(
+  "/",
+  (req, res, next) => {
+    console.log("Received request for /");
+    next();
   },
-});
+  indexRouter
+);
+
+app.use(
+  "/users",
+  (req, res, next) => {
+    console.log("Received request for /users");
+    next();
+  },
+  usersRouter
+);
+
+app.use(
+  "/participants",
+  (req, res, next) => {
+    console.log("Received request for /participants");
+    next();
+  },
+  participantsRouter
+);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -126,9 +137,9 @@ async function initDatabase() {
       )
     `);
 
-    console.log('Database structure initialized successfully');
+    console.log("Database structure initialized successfully");
   } catch (error) {
-    console.error('Error initializing database structure:', error);
+    console.error("Error initializing database structure:", error);
   } finally {
     conn.release();
   }
@@ -138,9 +149,8 @@ async function initDatabase() {
   try {
     await initDatabase();
     await initAdminUser();
-    ;
   } catch (error) {
-    console.error('Failed to initialize application:', error);
+    console.error("Failed to initialize application:", error);
     process.exit(1);
   }
 })();

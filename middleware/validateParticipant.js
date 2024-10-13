@@ -1,18 +1,16 @@
-const { body } = require('express-validator');
+// Purpose: Validate the participant data before saving it to the database.
+const { body } = require("express-validator");
 
-// Validation middleware
-const validateParticipant = [
-    body('email').isEmail(),
-    body('firstname').notEmpty(),
-    body('lastname').notEmpty(),
-    body('dob').isDate({ format: 'YYYY-MM-DD' }),
-    body('work.companyname').notEmpty(),
-    body('work.salary').isNumeric(),
-    body('work.currency').notEmpty(),
-    body('home.country').notEmpty(),
-    body('home.city').notEmpty(),
-  ];
-
-  module.exports = validateParticipant;
+module.exports = [
+  body("email").isEmail(),
+  body("firstname").notEmpty(),
+  body("lastname").notEmpty(),
+  body("dob").isDate(),
+  body("work.companyname").notEmpty(),
+  body("work.salary").isNumeric(),
+  body("work.currency").notEmpty(),
+  body("home.country").notEmpty(),
+  body("home.city").notEmpty(),
+];
 
 
