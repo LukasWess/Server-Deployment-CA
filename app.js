@@ -76,8 +76,8 @@ app.use(function (err, req, res, next) {
 
 // Initialize admin user
 async function initAdminUser() {
-  const adminUsername = "admin";
-  const adminPassword = "P4ssword";
+  const adminUsername = process.env.ADMIN_USERNAME;
+  const adminPassword = process.env.ADMIN_PASSWORD;
   const hashedPassword = await bcrypt.hash(adminPassword, 10);
 
   try {
