@@ -1,19 +1,18 @@
-var createError = require("http-errors");
-var express = require("express");
-var path = require("path");
-var cookieParser = require("cookie-parser");
-var logger = require("morgan");
-const mysql = require("mysql2/promise");
-const bcrypt = require("bcrypt");
-const { body } = require("express-validator");
+// app.js
 require("dotenv").config();
+const bcrypt = require("bcrypt");
+const express = require("express");
+const path = require("path");
+const cookieParser = require("cookie-parser");
+const logger = require("morgan");
+const createError = require("http-errors");
 const pool = require("./db");
 
-var indexRouter = require("./routes/index");
-var usersRouter = require("./routes/users");
-var participantsRouter = require("./routes/participants");
+const indexRouter = require("./routes/index");
+const usersRouter = require("./routes/users");
+const participantsRouter = require("./routes/participants");
 
-var app = express();
+const app = express();
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -25,32 +24,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use(
-  "/",
-  (req, res, next) => {
-    console.log("Received request for /");
-    next();
-  },
-  indexRouter
-);
-
-app.use(
-  "/users",
-  (req, res, next) => {
-    console.log("Received request for /users");
-    next();
-  },
-  usersRouter
-);
-
-app.use(
-  "/participants",
-  (req, res, next) => {
-    console.log("Received request for /participants");
-    next();
-  },
-  participantsRouter
-);
+app.use("/", indexRouter);
+app.use("/users", usersRouter);
+app.use("/participants", participantsRouter);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -78,6 +54,11 @@ app.use(function (err, req, res, next) {
 async function initAdminUser() {
   const adminUsername = process.env.ADMIN_USERNAME;
   const adminPassword = process.env.ADMIN_PASSWORD;
+  if (!adminUsername || !adminPassword) {
+    throw new Error(
+      "Admin username or password not set in environment variables"
+    );
+  }
   const hashedPassword = await bcrypt.hash(adminPassword, 10);
 
   try {
@@ -91,6 +72,7 @@ async function initAdminUser() {
   }
 }
 
+// Initialize database structure
 async function initDatabase() {
   const conn = await pool.getConnection();
   try {
